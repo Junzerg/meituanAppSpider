@@ -4,7 +4,6 @@
 meituan api spider's global variables settings.
 '''
 
-
 # HTTP Request headers infos setting variables:
 headers = [
     {
@@ -16,6 +15,11 @@ headers = [
         'User-Agent': 'AiMeiTuan /HUAWEI-4.4.2-HUAWEI MLA-AL10-720x1280-240-5.5.4-254-863254010002128-qqcpd',
         'Host': 'api.meituan.com',
         'Connection': 'Keep-Alive'
+    },
+    {
+        "User-Agent": 'AiMeiTuan /OPPO-7.1.2-OPPO R11 Plus-1080x1920-320-5.5.4-254-863254709988421-qqcpd',
+        'Host': 'api.meituan.com',
+        'Connection': 'Keep-Alive'
     }
 ]
 
@@ -23,19 +27,19 @@ headers = [
 limit = 25
 
 # Data storage path and filename(.csv or .txt file) setting variables:
-savePath = './meituanRestaurantsInfos'
-filename = 'HaikouRestaurants'
+savePath = './美团商家信息'
+filename = '上海商家'
 
 # MySQL table name and MySQL Database setting variables:
 tableName = 'HaikouMeituan'
 sqlConf = {
-      'host': '127.0.0.1',
-      'port': 3306,
-      'user': 'root',
-      'passwd': '123456',
-      'db': 'mtdb',
-      'charset': 'utf8',
-   }
+    'host': '127.0.0.1',
+    'port': 3306,
+    'user': 'root',
+    'passwd': 'root',
+    'db': 'mtdb',
+    'charset': 'utf8',
+}
 
 # MongoDB collection name and MongoDB Database setting variables:
 collection = 'HaikouMeituanCleaned'

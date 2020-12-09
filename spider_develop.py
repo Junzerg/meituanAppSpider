@@ -18,8 +18,7 @@ import time
 
 from pymongo import MongoClient
 from py2neo import Graph, Node
-from settings import headers,savePath,filename,mongoConf,collection,limit,neoConf
-
+from settings import headers, savePath, filename, mongoConf, collection, limit, neoConf
 
 
 class MeituanSpider(object):
@@ -31,16 +30,15 @@ class MeituanSpider(object):
     '''
 
     baseUrl = ("http://api.meituan.com/group/v4/deal/select/city/94/cate/1?"
-                "sort=solds&hasGroup=true&mpt_cate1=1&offset={0}&limit={1}")
-    modeList = ['txt','csv','mongodb', 'neo4j']
-    fieldKey = ['店铺名称','页面id','类别','品牌名称','品牌id','品牌logo','评分',
-                '平均价格','最低价格','所属地区','地区Id','纬度','经度','详细地址',
-                '楼层','地铁站id','停车信息','优惠套餐情况','营业时间','联系电话',
-                '累计售出份数','餐厅简介','特色菜','是否小吃','有无外卖','上周订单数',
-                '历史订单数','wifi','支持预定']
+               "sort=solds&hasGroup=true&mpt_cate1=1&offset={0}&limit={1}")
+    modeList = ['txt', 'csv', 'mongodb', 'neo4j']
+    fieldKey = ['店铺名称', '页面id', '类别', '品牌名称', '品牌id', '品牌logo', '评分',
+                '平均价格', '最低价格', '所属地区', '地区Id', '纬度', '经度', '详细地址',
+                '楼层', '地铁站id', '停车信息', '优惠套餐情况', '营业时间', '联系电话',
+                '累计售出份数', '餐厅简介', '特色菜', '是否小吃', '有无外卖', '上周订单数',
+                '历史订单数', 'wifi', '支持预定']
 
-
-    #美团海口地区美食爬虫
+    # 美团海口地区美食爬虫
     def __init__(self, saveMode='txt'):
         '''
         The constructor of MeituanSpider classself.
@@ -73,7 +71,7 @@ class MeituanSpider(object):
             print('>>>> we are in files.')
             if not os.path.exists(savePath):
                 os.makedirs(savePath)
-            filePath = os.path.join(savePath,filename+'.'+self.saveMode)
+            filePath = os.path.join(savePath, filename + '.' + self.saveMode)
             if not os.access(filePath, os.F_OK):
                 with open(filePath, 'w', encoding='utf-8', newline='') as file:
                     if self.saveMode == 'csv':
@@ -83,28 +81,26 @@ class MeituanSpider(object):
             if self.saveMode == 'csv':
                 self.csvwriter = csv.writer(self.file)
 
-
     def run(self):
         i = 0
         acquiredCount = 0
         while True:
-            url = self.baseUrl.format(str(i*limit), limit)
+            url = self.baseUrl.format(str(i * limit), limit)
             itemlist = self.parse(url)
             if not itemlist:
                 break
             for item in itemlist:
                 self.save_item(item)
             acquiredCount += len(itemlist)
-            print('已成功请求%d个商家信息'%((i+1)*limit))
-            print('已成功获取%d个商家信息'%(acquiredCount))
+            print('已成功请求%d个商家信息' % ((i + 1) * limit))
+            print('已成功获取%d个商家信息' % (acquiredCount))
             i += 1
-            time.sleep(random.randint(2,5))
+            time.sleep(random.randint(2, 5))
 
-
-    def save_item(self,item):
+    def save_item(self, item):
         if self.saveMode == 'txt':
-            for key,value in item.items():
-                self.file.write(str(key)+':'+str(value) + '\n')
+            for key, value in item.items():
+                self.file.write(str(key) + ':' + str(value) + '\n')
             self.file.write('\n\n-----------------------------\n\n\n')
         elif self.saveMode == 'csv':
             self.csvwriter.writerow(item.values())
@@ -115,9 +111,8 @@ class MeituanSpider(object):
             print(dict(meituanShop))
             self.connector.create(meituanShop)
 
-
-    def parse(self,url):
-        response = requests.get(url,headers=random.choice(headers))
+    def parse(self, url):
+        response = requests.get(url, headers=random.choice(headers), timeout=3)
         number = 0
         while True:
             try:
@@ -167,7 +162,7 @@ class MeituanSpider(object):
             # 品牌id
             brandId = info['poi']['brandId']
             # 品牌logo
-            brandLogo = info ['poi']['brandLogo']
+            brandLogo = info['poi']['brandLogo']
             # 优惠套餐情况
             abstracts = ''
             for abstract in info['poi']['payAbstracts']:
@@ -181,7 +176,7 @@ class MeituanSpider(object):
             # 最低价格
             lowestPrice = info['poi']['lowestPrice']
             # 营业时间
-            openInfo = info['poi']['openInfo'].replace('\n',' ')
+            openInfo = info['poi']['openInfo'].replace('\n', ' ')
             # 联系电话
             phone = info['poi']['phone']
             # 累计售出份数
@@ -205,20 +200,20 @@ class MeituanSpider(object):
 
             item = {
                 '店铺名称': name,
-                '页面id':poiid,
+                '页面id': poiid,
                 '类别': cateName,
                 '品牌名称': brandName,
                 '品牌id': brandId,
                 '品牌logo': brandLogo,
                 '评分': avgScore,
                 '平均价格': avgPrice,
-                '最低价格':lowestPrice,
+                '最低价格': lowestPrice,
                 '所属地区': areaName,
                 '地区Id': areaId,
                 '纬度': lat,
                 '经度': lng,
                 '详细地址': addr,
-                '楼层':floor,
+                '楼层': floor,
                 '地铁站id': subwayStationId,
                 '停车信息': parking,
                 '优惠套餐情况': abstracts,
@@ -239,7 +234,6 @@ class MeituanSpider(object):
         # 返回当前页面item列表
         return itemlist
 
-
     def __del__(self):
         '''
         The deconstructor of MeituanSpider class.
@@ -257,7 +251,6 @@ class MeituanSpider(object):
         else:
             print('>>>> closing file.')
             self.file.close()
-
 
 
 # test:
